@@ -206,15 +206,26 @@ class Assistants():
        
         tools_choose_prompt = TOOLS_CHOOSE_PROMPT + TOOLS_CHOOSE_EXAMPLE_PROMPT + TOOLS_CHOOSE_HINT +f"""\nInput:\ntools_info:{self.tools}\ntools_summary: {tools_summary}\ninput_text: {self.input_text}\nOutput:\n"""     
 
-        response = self._GPTLLM(self.tools_model,tools_choose_prompt)
-        # 使用正则表达式匹配字典部分
-        match = re.search(r'\{.*\}', response, re.DOTALL)
-        if match:
-            dict_str = match.group()
-            # 使用json.loads()函数将字符串转换为字典
-            response = json.loads(dict_str)
-        else:
-            response = json.loads(response)
+        max_attempts = 5
+        attempts = 0
+
+        while attempts < max_attempts:
+            try:
+                response = self._GPTLLM(self.tools_model,tools_choose_prompt)
+                # 使用正则表达式匹配字典部分
+                match = re.search(r'\{.*\}', response, re.DOTALL)
+                if match:
+                    dict_str = match.group()
+                    # 使用json.loads()函数将字符串转换为字典
+                    response = json.loads(dict_str)
+                else:
+                    response = json.loads(response)
+                break
+            except json.JSONDecodeError:
+                attempts+=1
+                continue
+
+
         # tools_list = response.strip("[]").split(", ")
         tools_list = response['tool']['name']
         self.tools_list = [tool for tool in self.tools if tool['path'] in tools_list]
@@ -229,14 +240,25 @@ class Assistants():
             plan_prompt = PLAN_PROMPT + PLAN_EXAMPLE_PROMPT + PLAN_HINT +f"""\nCurrent time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}\nInput:\ntools_summary:you can't use tool\ninput_text: {self.input_text}\nOutput:\n""" 
         else:
             plan_prompt = PLAN_PROMPT + PLAN_EXAMPLE_PROMPT + PLAN_HINT +f"""\nCurrent time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}\nInput:\ntools_summary: {self.tools_summary}\ninput_text: {self.input_text}\nOutput:\n"""     
-        response = self._GPTLLM(self.tools_model,plan_prompt)
-        match = re.search(r'\[.*\]', response)
-        if match:
-            list_str = match.group()
-            # 使用json.loads()函数将字符串转换为列表
-            self.plans = ast.literal_eval(list_str)
-        else:
-            self.plans = ast.literal_eval(response)
+        max_attempts = 5
+        attempts = 0
+
+        while attempts < max_attempts:
+            try:
+                response = self._GPTLLM(self.tools_model,plan_prompt)
+                match = re.search(r'\[.*\]', response)
+                if match:
+                    list_str = match.group()
+                    # 使用json.loads()函数将字符串转换为列表
+                    self.plans = ast.literal_eval(list_str)
+                else:
+                    self.plans = ast.literal_eval(response)
+                break
+            except (ValueError, SyntaxError):
+                attempts+=1
+                continue
+        
+        
 
     def _get_parametes(self,plan_response:List[str],tool_path:str,plan:str,input_text:str):
         tool_info = {}
