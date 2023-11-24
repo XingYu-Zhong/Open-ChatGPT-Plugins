@@ -9,6 +9,8 @@ pyyaml
 python-dotenv
 tokentrim
 pydantic
+pyyaml
+
 
 
 # debug

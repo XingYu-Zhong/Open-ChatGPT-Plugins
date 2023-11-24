@@ -7,7 +7,7 @@ import os
 import shutil
 import inspect
 from collections import deque
-from openainode.openai_node import *
+from .openainode.openai_node import *
 import ast
 from dotenv import load_dotenv
 import openai
@@ -30,6 +30,7 @@ class Assistants():
             openai.api_key = openai_api_key
         else:
             openai.api_key = os.getenv("OPENAI_API_KEY")
+        os.environ["OPENAI_API_KEY"] = openai.api_key
         if tools_model:
             self.tools_model = tools_model
         else:
@@ -48,7 +49,7 @@ class Assistants():
             yaml_file_path = os.path.join(caller_dir, yaml_file_path)
 
             #根据上传的yaml文件去解析对应的AssistantConfig，然后把yaml文件重命名id.yaml
-            with open(yaml_file_path, 'r') as file:
+            with open(yaml_file_path, 'r',encoding='utf-8') as file:
                 ods_yaml = yaml.safe_load(file)
             self.components = ods_yaml.get('components', {})
             # 提取 YAML 文件中的数据
@@ -77,6 +78,8 @@ class Assistants():
             # 获取当前文件的绝对路径
             current_dir = os.path.dirname(os.path.abspath(__file__))
             data_path = os.path.join(current_dir, 'data')
+            # 如果目录不存在，创建它
+            os.makedirs(data_path, exist_ok=True)
             data_file_path = os.path.join(data_path, f'{self.id}.yaml')
             shutil.copy(yaml_file_path, data_file_path)
         elif assistant_id and not yaml_file_path:
@@ -85,7 +88,7 @@ class Assistants():
             data_path = os.path.join(current_dir, 'data')
             data_file_path = os.path.join(data_path, f'{self.id}.yaml')
             #根据上传的yaml文件去解析对应的AssistantConfig，然后把yaml文件重命名id.yaml
-            with open(data_file_path, 'r') as file:
+            with open(data_file_path, 'r',encoding='utf-8') as file:
                 ods_yaml = yaml.safe_load(file)
             # 提取 YAML 文件中的数据
             self.components = ods_yaml.get('components', {})
@@ -127,7 +130,7 @@ class Assistants():
             yaml_file_path = os.path.join(caller_dir, yaml_file_path)
             shutil.copy(yaml_file_path, data_file_path)
 
-            with open(data_file_path, 'r') as file:
+            with open(data_file_path, 'r',encoding='utf-8') as file:
                 ods_yaml = yaml.safe_load(file)
             self.components = ods_yaml.get('components', {})
             # 提取 YAML 文件中的数据
@@ -266,7 +269,7 @@ class Assistants():
                 plans_responses.append(plan)
         #聊天
         chat_prompt = f"""History_message:{self.message_history}\nPlease respond based on current plans (plan_responses) and user input (input_text).\nplans_response:{plans_responses}\ninput_text:{self.input_text}"""
-        print(f'chat_prompt:{chat_prompt}')
+        # print(f'chat_prompt:{chat_prompt}')
         response = self._GPTLLM(self.tools_model,chat_prompt)
         self.message_history.append(
             [

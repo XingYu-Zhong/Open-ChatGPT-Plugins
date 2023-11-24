@@ -1,5 +1,7 @@
 # Open-ChatGPT-Plugins 😎
 
+*Read this in other languages: [English](README_EN.md), [中文](README.md).*
+
 Open-ChatGPT-Plugins 是一个开源项目🌟，旨在构建一个开放和多元化的聊天机器人插件生态系统。本项目使得开发者可以轻松地为 ChatGPT 模型增添新的功能和交互体验✨。
 
 ## 背景 📚
@@ -16,7 +18,7 @@ OpenAI 在开发者大会上推出了 GPT-4 Turbo，提出了“Assistants”概
 要安装此插件所需的软件包，请运行以下命令：
 
 ```shell
-pip install -r requirements.txt
+pip install openplugins
 ```
 
 ## 使用方式 🖥️
@@ -24,25 +26,30 @@ pip install -r requirements.txt
 - 第一种：上传 API 的 YAML 文件
 
 ```python
-assistant = Assistants(yaml_file_path='../openai.yaml', tools_model='gpt-4-1106-preview', openai_api_key='sk-xxxx')
+import openplugins
+assistant = openplugins.Assistants(yaml_file_path='../openai.yaml', tools_model='gpt-4-1106-preview', openai_api_key='sk-xxxx')
 print(assistant.run('请您查一下贵州茅台的昨天股票历史数据'))
+print(assistant.id)
 ```
 
 - 第二种：通过 Assistant ID 使用
 
 ```python
-assistant = Assistants(assistant_id='eafa9807-7cff-4afb-b069-ce3437c076fb', tools_model='gpt-4-1106-preview', openai_api_key='sk-xxxx')
+import openplugins
+assistant = openplugins.Assistants(assistant_id='eafa9807-7cff-4afb-b069-ce3437c076fb', tools_model='gpt-4-1106-preview', openai_api_key='sk-xxxx')
 print(assistant.run('请您查一下贵州茅台的昨天股票历史数据'))
 ```
 
 - 第三种：更新 YAML 文件
 
 ```python
-assistant = Assistants(yaml_file_path='../openai.yaml', assistant_id='eafa9807-7cff-4afb-b069-ce3437c076fb', tools_model='gpt-4-1106-preview', openai_api_key='sk-xxxx')
+import openplugins
+assistant = openplugins.Assistants(yaml_file_path='openai.yaml', assistant_id='eafa9807-7cff-4afb-b069-ce3437c076fb', tools_model='gpt-4-1106-preview', openai_api_key='sk-xxxx')
 print(assistant.run('请您查一下贵州茅台的昨天股票历史数据'))
 ```
 
 注意：需要先运行 API 服务。API 服务可参考 [StockMarketAssistant](https://github.com/XingYu-Zhong/StockMarketAsisstant) 项目🔗。
+国内环境需要注意网络是否能访问到openai
 
 ## 原理 🤖
 

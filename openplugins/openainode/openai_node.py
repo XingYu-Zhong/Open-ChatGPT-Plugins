@@ -3,7 +3,7 @@ from openai import OpenAI
 import os
 from typing import Optional
 import tokentrim as tt
-from openainode.openai_model import *
+from .openai_model import *
 import logging
 
 class OpenAINode():
