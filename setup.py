@@ -18,7 +18,7 @@ URL = 'https://github.com/XingYu-Zhong/Open-ChatGPT-Plugins'
 EMAIL = 'zhongxingyuemail@gmail.com'  # 请替换为你的邮箱
 AUTHOR = 'XingYu-Zhong'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '0.1.6'
+VERSION = '0.1.8'
 
 # What packages are required for this module to be executed?
 REQUIRED = [

@@ -51,6 +51,20 @@ print(assistant.run('Please check the historical stock data of Guizhou Maotai fo
 
 Note: The API service must be run first. For the API service, refer to the [StockMarketAssistant](https://github.com/XingYu-Zhong/StockMarketAsisstant) project🔗.
 
+View currently available assistants
+```python
+import openplugins
+data = openplugins.DataInfo()
+print(data.get_all_assistants_info())
+```
+
+Delete currently available assistants
+```python
+import openplugins
+data = openplugins.DataInfo()
+data.delete_assistant(assistant_id = 'cf1f114a-019c-4e36-a8d4-681f5027ef8c')
+```
+
 ## Principle 🤖
 
 This project replicates ChatGPT-Plugins and requires a YAML file to describe the interface, with one YAML corresponding to the initialization of an Assistant. The main process includes:

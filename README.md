@@ -51,6 +51,20 @@ print(assistant.run('请您查一下贵州茅台的昨天股票历史数据'))
 注意：需要先运行 API 服务。API 服务可参考 [StockMarketAssistant](https://github.com/XingYu-Zhong/StockMarketAsisstant) 项目🔗。
 国内环境需要注意网络是否能访问到openai
 
+查看当前已有的assistants
+```python
+import openplugins
+data = openplugins.DataInfo()
+print(data.get_all_assistants_info())
+```
+
+删除已有的assistants
+```python
+import openplugins
+data = openplugins.DataInfo()
+data.delete_assistant(assistant_id = 'cf1f114a-019c-4e36-a8d4-681f5027ef8c')
+```
+
 ## 原理 🤖
 
 本项目通过复刻 ChatGPT-Plugins，需要一个 YAML 文件来说明接口，一个 YAML 对应一个 Assistant 的初始化。主要流程包括：

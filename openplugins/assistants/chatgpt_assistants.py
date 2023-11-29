@@ -7,7 +7,7 @@ import os
 import shutil
 import inspect
 from collections import deque
-from .openainode.openai_node import *
+from ..openainode.openai_node import *
 import ast
 from dotenv import load_dotenv
 import openai
@@ -15,9 +15,10 @@ import json
 import requests
 import re
 
-from .prompt.few_shot_tools_choose_prompt import *
-from .prompt.few_shot_plan_prompt import *
-from .prompt.few_shot_parameters_generate_prompt import *
+from ..prompt.few_shot_tools_choose_prompt import *
+from ..prompt.few_shot_plan_prompt import *
+from ..prompt.few_shot_parameters_generate_prompt import *
+from ..data.manage_data import *
 
 class MessageRecord(BaseModel):
     role: str = Field(description="角色")
@@ -36,125 +37,20 @@ class Assistants():
         else:
             self.tools_model = 'gpt-4-1106-preview'
         self.message_history = deque(maxlen=10)
+        
+        self.data_manage = DataInfo()
         if yaml_file_path and not assistant_id:
-            # 获取调用此方法的栈帧
-            stack = inspect.stack()
-            # 假设调用者是栈的第二个帧（第一个是当前的 __init__ 方法）
-            caller_frame = stack[1]
-            # 获取调用者的文件路径
-            caller_path = caller_frame.filename
-            # 获取调用者的目录路径
-            caller_dir = os.path.dirname(caller_path)
-            # 构建 openai.yaml 文件的绝对路径
-            yaml_file_path = os.path.join(caller_dir, yaml_file_path)
-
-            #根据上传的yaml文件去解析对应的AssistantConfig，然后把yaml文件重命名id.yaml
-            with open(yaml_file_path, 'r',encoding='utf-8') as file:
-                ods_yaml = yaml.safe_load(file)
-            self.components = ods_yaml.get('components', {})
-            # 提取 YAML 文件中的数据
-            self.title = ods_yaml.get('info', {}).get('title')
-            self.description = ods_yaml.get('info', {}).get('description')
-            self.id=str(uuid.uuid4())
-            self.created_time=int(time.time())
-            # 提取 paths 作为 tools
-            self.tools = []
-            paths = ods_yaml.get('paths', {})
-            for path, operations in paths.items():
-                for method, details in operations.items():
-                    tool = {
-                            'path': path,
-                            'method': method,
-                            'operation':details['operationId'],
-                            'summary': details['summary'],
-                            'parameters':details.get('parameters', []),
-                            'responses':details['responses']
-                        }
-                    self.tools.append(tool)
-                    
-            # 提取 servers 的 urls
-            self.servers = [server['url'] for server in ods_yaml.get('servers', [])]
-            # 将这个yaml文件按照{seld.id}.yaml重新命名存到assistants/data目录下
-            # 获取当前文件的绝对路径
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            data_path = os.path.join(current_dir, 'data')
-            # 如果目录不存在，创建它
-            os.makedirs(data_path, exist_ok=True)
-            data_file_path = os.path.join(data_path, f'{self.id}.yaml')
-            shutil.copy(yaml_file_path, data_file_path)
-        elif assistant_id and not yaml_file_path:
-            self.id=assistant_id
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            data_path = os.path.join(current_dir, 'data')
-            data_file_path = os.path.join(data_path, f'{self.id}.yaml')
-            #根据上传的yaml文件去解析对应的AssistantConfig，然后把yaml文件重命名id.yaml
-            with open(data_file_path, 'r',encoding='utf-8') as file:
-                ods_yaml = yaml.safe_load(file)
-            # 提取 YAML 文件中的数据
-            self.components = ods_yaml.get('components', {})
-            self.title = ods_yaml.get('info', {}).get('title')
-            self.description = ods_yaml.get('info', {}).get('description')
-            self.created_time=int(time.time())
-            # 提取 paths 作为 tools
-            self.tools = []
-            paths = ods_yaml.get('paths', {})
-            for path, operations in paths.items():
-                for method, details in operations.items():
-                    tool = {
-                            'path': path,
-                            'method': method,
-                            'operation':details['operationId'],
-                            'summary': details['summary'],
-                            'parameters':details.get('parameters', []),
-                            'responses':details['responses']
-                        }
-                    self.tools.append(tool)
-            
-            # 提取 servers 的 urls
-            self.servers = [server['url'] for server in ods_yaml.get('servers', [])]
+            assistant_id = self.data_manage.create_assistant(yaml_file_path)
         elif assistant_id and yaml_file_path:
-            self.id=assistant_id
-            # TODO 检查文件
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            data_path = os.path.join(current_dir, 'data')
-            data_file_path = os.path.join(data_path, f'{assistant_id}.yaml')
-            # 获取调用此方法的栈帧
-            stack = inspect.stack()
-            # 假设调用者是栈的第二个帧（第一个是当前的 __init__ 方法）
-            caller_frame = stack[1]
-            # 获取调用者的文件路径
-            caller_path = caller_frame.filename
-            # 获取调用者的目录路径
-            caller_dir = os.path.dirname(caller_path)
-            # 构建 openai.yaml 文件的绝对路径
-            yaml_file_path = os.path.join(caller_dir, yaml_file_path)
-            shutil.copy(yaml_file_path, data_file_path)
+            self.data_manage.update_assistant(assistant_id,yaml_file_path)
 
-            with open(data_file_path, 'r',encoding='utf-8') as file:
-                ods_yaml = yaml.safe_load(file)
-            self.components = ods_yaml.get('components', {})
-            # 提取 YAML 文件中的数据
-            self.title = ods_yaml.get('info', {}).get('title')
-            self.description = ods_yaml.get('info', {}).get('description')
-            
-            self.created_time=int(time.time())
-            # 提取 paths 作为 tools
-            self.tools = []
-            paths = ods_yaml.get('paths', {})
-            for path, operations in paths.items():
-                for method, details in operations.items():
-                    tool = {
-                            'path': path,
-                            'method': method,
-                            'operation':details['operationId'],
-                            'summary': details['summary'],
-                            'parameters':details.get('parameters', []),
-                            'responses':details['responses']
-                        }
-                    self.tools.append(tool)
-            
-            # 提取 servers 的 urls
-            self.servers = [server['url'] for server in ods_yaml.get('servers', [])]
+        data_info = self.data_manage.get_assistant_info(assistant_id)
+        self.components = data_info['components']
+        self.title = data_info['title']
+        self.description = data_info['description']
+        self.id=assistant_id
+        self.tools = data_info['tools']
+        self.servers = data_info['servers']
         
         
     def run(self, input_text: str):
