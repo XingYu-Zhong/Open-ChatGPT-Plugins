@@ -49,7 +49,7 @@ assistant = openplugins.Assistants(yaml_file_path='openai.yaml', assistant_id='e
 print(assistant.run('Please check the historical stock data of Guizhou Maotai for yesterday'))
 ```
 
-Note: The API service must be run first. For the API service, refer to the [StockMarketAssistant](https://github.com/XingYu-Zhong/StockMarketAsisstant) project🔗.
+Note: The API service must be run first. For the API service, refer to the [StockMarketAssistant](https://github.com/XingYu-Zhong/StockMarketAsisstant) project🔗.Or check out the official openai project[plugins-quickstart](https://github.com/openai/plugins-quickstart)
 
 View currently available assistants
 ```python
