@@ -195,7 +195,10 @@ class Assistants():
                 MessageRecord(role="assistant", content=response),
             ]
         )
-        return response
+        response_dict = {}
+        response_dict['plan'] = self.plans
+        response_dict['response'] = response
+        return response_dict
 
     def _use_tool(self,tool_path:str,tool_params:dict):
         method = ''

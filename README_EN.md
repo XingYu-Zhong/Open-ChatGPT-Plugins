@@ -50,7 +50,15 @@ print(assistant.run('Please check the historical stock data of Guizhou Maotai fo
 ```
 
 Note: The API service must be run first. For the API service, refer to the [StockMarketAssistant](https://github.com/XingYu-Zhong/StockMarketAsisstant) project🔗.Or check out the official openai project[plugins-quickstart](https://github.com/openai/plugins-quickstart)
-
+return is a dict
+```python
+import openplugins
+assistant = openplugins.Assistants(yaml_file_path='openai.yaml', tools_model='gpt-4-1106-preview', openai_api_key='sk-xxxxxxxx')
+print(assistant.run('result of 1+1'))
+```
+```shell
+{'plan': [{'tool': '', 'plan': 'Reply with the result of "1+1", which is "2".'}], 'response': '2'}
+```
 View currently available assistants
 ```python
 import openplugins

@@ -51,6 +51,16 @@ print(assistant.run('请您查一下贵州茅台的昨天股票历史数据'))
 注意：需要先运行 API 服务。API 服务可参考 [StockMarketAssistant](https://github.com/XingYu-Zhong/StockMarketAsisstant) 项目🔗。或者查看openai官方项目[plugins-quickstart](https://github.com/openai/plugins-quickstart)
 国内环境需要注意网络是否能访问到openai
 
+返回值是一个字典
+```python
+import openplugins
+assistant = openplugins.Assistants(yaml_file_path='openai.yaml', tools_model='gpt-4-1106-preview', openai_api_key='sk-xxxxxxxx')
+print(assistant.run('请打印1+1的结果'))
+```
+```shell
+{'plan': [{'tool': '', 'plan': 'Reply with the result of "1+1", which is "2".'}], 'response': '2'}
+```
+
 查看当前已有的assistants
 ```python
 import openplugins
